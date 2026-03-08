@@ -149,7 +149,79 @@ func (b *builder) processContent(html string) (string, error) {
 		return strings.Replace(match, srcURL, "images/"+filename, 1)
 	})
 
+	html = replaceHTMLEntities(html)
 	return html, nil
+}
+
+// replaceHTMLEntities replaces named HTML entities that are not valid in XHTML
+// with their numeric character references.
+func replaceHTMLEntities(s string) string {
+	entities := [][2]string{
+		{"&nbsp;", "&#160;"},
+		{"&mdash;", "&#8212;"},
+		{"&ndash;", "&#8211;"},
+		{"&hellip;", "&#8230;"},
+		{"&ldquo;", "&#8220;"},
+		{"&rdquo;", "&#8221;"},
+		{"&lsquo;", "&#8216;"},
+		{"&rsquo;", "&#8217;"},
+		{"&laquo;", "&#171;"},
+		{"&raquo;", "&#187;"},
+		{"&copy;", "&#169;"},
+		{"&reg;", "&#174;"},
+		{"&trade;", "&#8482;"},
+		{"&euro;", "&#8364;"},
+		{"&pound;", "&#163;"},
+		{"&yen;", "&#165;"},
+		{"&cent;", "&#162;"},
+		{"&deg;", "&#176;"},
+		{"&plusmn;", "&#177;"},
+		{"&times;", "&#215;"},
+		{"&divide;", "&#247;"},
+		{"&frac12;", "&#189;"},
+		{"&frac14;", "&#188;"},
+		{"&frac34;", "&#190;"},
+		{"&bull;", "&#8226;"},
+		{"&middot;", "&#183;"},
+		{"&dagger;", "&#8224;"},
+		{"&Dagger;", "&#8225;"},
+		{"&prime;", "&#8242;"},
+		{"&Prime;", "&#8243;"},
+		{"&larr;", "&#8592;"},
+		{"&rarr;", "&#8594;"},
+		{"&uarr;", "&#8593;"},
+		{"&darr;", "&#8595;"},
+		{"&harr;", "&#8596;"},
+		{"&lArr;", "&#8656;"},
+		{"&rArr;", "&#8658;"},
+		{"&eacute;", "&#233;"},
+		{"&Eacute;", "&#201;"},
+		{"&ecirc;", "&#234;"},
+		{"&egrave;", "&#232;"},
+		{"&agrave;", "&#224;"},
+		{"&aacute;", "&#225;"},
+		{"&acirc;", "&#226;"},
+		{"&auml;", "&#228;"},
+		{"&aring;", "&#229;"},
+		{"&aelig;", "&#230;"},
+		{"&ccedil;", "&#231;"},
+		{"&iacute;", "&#237;"},
+		{"&icirc;", "&#238;"},
+		{"&iuml;", "&#239;"},
+		{"&ntilde;", "&#241;"},
+		{"&oacute;", "&#243;"},
+		{"&ocirc;", "&#244;"},
+		{"&ouml;", "&#246;"},
+		{"&oslash;", "&#248;"},
+		{"&uacute;", "&#250;"},
+		{"&ucirc;", "&#251;"},
+		{"&uuml;", "&#252;"},
+		{"&szlig;", "&#223;"},
+	}
+	for _, e := range entities {
+		s = strings.ReplaceAll(s, e[0], e[1])
+	}
+	return s
 }
 
 // imgSrcRe matches <img ... src="..." ...> or <img ... src='...' ...>.
@@ -184,7 +256,7 @@ func (b *builder) writeContentXHTML(html string) error {
 	if !b.post.PublishedAt.IsZero() {
 		meta = fmt.Sprintf(`<p class="meta">Published %s`, b.post.PublishedAt.Format("2 January 2006"))
 		if b.post.SourceURL != "" {
-			meta += fmt.Sprintf(` &mdash; <a href="%s">Original post</a>`, b.post.SourceURL)
+			meta += fmt.Sprintf(` &#8212; <a href="%s">Original post</a>`, b.post.SourceURL)
 		}
 		meta += "</p>\n"
 	}
