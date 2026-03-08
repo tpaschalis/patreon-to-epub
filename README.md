@@ -15,7 +15,7 @@ A CLI tool that converts Patreon posts you follow into EPUB files, ready to impo
 
 ## How it works
 
-1. You provide a Patreon API token (see below)
+1. You provide your Patreon `session_id` cookie (see below)
 2. The tool lists creators you're currently a patron of
 3. You select one or more creators
 4. For each creator, you select which posts to convert
@@ -24,14 +24,22 @@ A CLI tool that converts Patreon posts you follow into EPUB files, ready to impo
 
 ---
 
-## Getting a Patreon API Token
+## Getting your session_id
 
-1. Go to [https://www.patreon.com/portal/registration/register-clients](https://www.patreon.com/portal/registration/register-clients)
-2. Create a new client (name/description don't matter)
-3. Copy the **Creator's Access Token** from the client detail page
-4. Pass it to the tool via the `--token` flag or the `PATREON_TOKEN` environment variable
+Patreon's public API does not allow patrons to read posts — only creators can
+use it for their own content. This tool uses the same internal API that
+Patreon's own web and mobile clients use, authenticated with your browser
+session cookie.
 
-> **Note:** This token gives the tool access to your Patreon account (the campaigns you follow and their posts). It is never sent anywhere except to `api.patreon.com`.
+1. Log in to [patreon.com](https://www.patreon.com) in your browser
+2. Open DevTools → Application (Chrome) or Storage (Firefox)
+3. Under **Cookies → https://www.patreon.com**, find the cookie named `session_id`
+4. Copy its value
+5. Pass it via the `--session` flag or the `PATREON_SESSION_ID` environment variable
+
+> **Note:** Your `session_id` is your login credential — treat it like a
+> password. It is only sent to `www.patreon.com` and expires when you log out
+> or after about a month.
 
 ---
 
@@ -39,11 +47,11 @@ A CLI tool that converts Patreon posts you follow into EPUB files, ready to impo
 
 ```sh
 # Using an env var (recommended)
-export PATREON_TOKEN=your_token_here
+export PATREON_SESSION_ID=your_session_id_here
 patreon-to-epub
 
 # Or inline
-patreon-to-epub --token your_token_here
+patreon-to-epub --session your_session_id_here
 
 # Output directory (default: current directory)
 patreon-to-epub --output ~/Books/Patreon
@@ -116,7 +124,7 @@ patreon-to-epub/
 │   ├── patreon/
 │   │   ├── client.go        # HTTP client, auth, pagination
 │   │   ├── models.go        # API response types
-│   │   └── client_test.go   # integration tests (requires PATREON_TOKEN)
+│   │   └── client_test.go   # integration tests (requires PATREON_SESSION_ID)
 │   ├── epub/
 │   │   ├── builder.go       # EPUB file construction
 │   │   └── builder_test.go
@@ -143,21 +151,21 @@ We deliberately keep dependencies minimal. EPUB generation is done from scratch 
 
 ## Testing
 
-Integration tests hit the real Patreon API and require a token:
+Integration tests hit the real Patreon API and require a session cookie:
 
 ```sh
-export PATREON_TOKEN=your_token_here
+export PATREON_SESSION_ID=your_session_id_here
 go test ./...
 ```
 
-Tests that require the token are skipped automatically if `PATREON_TOKEN` is not set:
+Tests that require the session are skipped automatically if `PATREON_SESSION_ID` is not set:
 
 ```sh
 # Skips integration tests
 go test ./...
 
 # Runs everything
-PATREON_TOKEN=... go test ./...
+PATREON_SESSION_ID=... go test ./...
 ```
 
 ---

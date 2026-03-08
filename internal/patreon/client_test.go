@@ -8,17 +8,17 @@ import (
 	"github.com/tpaschalis/patreon-to-epub/internal/patreon"
 )
 
-func token(t *testing.T) string {
+func sessionID(t *testing.T) string {
 	t.Helper()
-	tok := os.Getenv("PATREON_TOKEN")
-	if tok == "" {
-		t.Skip("PATREON_TOKEN not set; skipping integration test")
+	sid := os.Getenv("PATREON_SESSION_ID")
+	if sid == "" {
+		t.Skip("PATREON_SESSION_ID not set; skipping integration test")
 	}
-	return tok
+	return sid
 }
 
 func TestCampaigns(t *testing.T) {
-	c := patreon.NewClient(token(t))
+	c := patreon.NewClient(sessionID(t))
 
 	campaigns, err := c.Campaigns()
 	if err != nil {
@@ -43,7 +43,7 @@ func TestCampaigns(t *testing.T) {
 }
 
 func TestPosts(t *testing.T) {
-	c := patreon.NewClient(token(t))
+	c := patreon.NewClient(sessionID(t))
 
 	campaigns, err := c.Campaigns()
 	if err != nil {
@@ -86,11 +86,11 @@ func TestPosts(t *testing.T) {
 	}
 }
 
-func TestInvalidToken(t *testing.T) {
-	c := patreon.NewClient("invalid-token-for-testing")
+func TestInvalidSession(t *testing.T) {
+	c := patreon.NewClient("invalid-session-for-testing")
 	_, err := c.Campaigns()
 	if err == nil {
-		t.Fatal("expected error for invalid token, got nil")
+		t.Fatal("expected error for invalid session_id, got nil")
 	}
 	t.Logf("got expected error: %v", err)
 }

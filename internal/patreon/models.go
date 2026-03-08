@@ -2,63 +2,28 @@ package patreon
 
 import "time"
 
-// JSON:API envelope types
-
-type resourceID struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
+// apiResponse is the common JSON:API envelope returned by the internal Patreon API
+// for both the /api/stream and /api/posts endpoints.
+type apiResponse struct {
+	Data     []postData `json:"data"`
+	Included []included `json:"included"`
+	Links    struct {
+		Next string `json:"next"`
+	} `json:"links"`
 }
 
-type relationship struct {
-	Data []resourceID `json:"data"`
-}
-
-type relationshipSingle struct {
-	Data resourceID `json:"data"`
-}
-
-// Identity (current user)
-
-type identityResponse struct {
-	Data     identityData `json:"data"`
-	Included []included   `json:"included"`
-}
-
-type identityData struct {
-	ID            string             `json:"id"`
-	Attributes    userAttributes     `json:"attributes"`
-	Relationships identityRelations  `json:"relationships"`
-}
-
-type userAttributes struct {
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-}
-
-type identityRelations struct {
-	Memberships relationship `json:"memberships"`
-}
-
-// Included resources (members and campaigns come back in the same array)
-
+// included is a polymorphic resource in the JSON:API "included" array.
+// We only decode the fields we care about.
 type included struct {
-	ID            string              `json:"id"`
-	Type          string              `json:"type"`
-	Attributes    includedAttributes  `json:"attributes"`
-	Relationships memberRelations     `json:"relationships"`
+	ID         string             `json:"id"`
+	Type       string             `json:"type"`
+	Attributes includedAttributes `json:"attributes"`
 }
 
 type includedAttributes struct {
-	// campaign fields
-	Name         string `json:"name"`
-	URL          string `json:"url"`
-	PatronCount  int    `json:"patron_count"`
-
-	// member fields (nothing extra needed)
-}
-
-type memberRelations struct {
-	Campaign relationshipSingle `json:"campaign"`
+	Name        string `json:"name"`
+	URL         string `json:"url"`
+	PatronCount int    `json:"patron_count"`
 }
 
 // Campaign is the parsed, usable form of a creator's campaign.
@@ -69,30 +34,17 @@ type Campaign struct {
 	PatronCount int
 }
 
-// Posts
-
-type postsResponse struct {
-	Data  []postData `json:"data"`
-	Links struct {
-		Next string `json:"next"`
-	} `json:"links"`
-	Meta struct {
-		Pagination struct {
-			Total int `json:"total"`
-		} `json:"pagination"`
-	} `json:"meta"`
-}
-
+// postData is a single post resource in a JSON:API response.
 type postData struct {
 	ID         string         `json:"id"`
 	Attributes postAttributes `json:"attributes"`
 }
 
 type postAttributes struct {
-	Title       string    `json:"title"`
-	Content     string    `json:"content"` // HTML
-	PublishedAt time.Time `json:"published_at"`
-	URL         string    `json:"url"`
+	Title       string     `json:"title"`
+	Content     string     `json:"content"` // HTML
+	PublishedAt time.Time  `json:"published_at"`
+	URL         string     `json:"url"`
 	Image       *postImage `json:"image"`
 }
 

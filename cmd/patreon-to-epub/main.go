@@ -22,18 +22,18 @@ func main() {
 }
 
 func run() error {
-	token := flag.String("token", "", "Patreon API token (or set PATREON_TOKEN)")
+	session := flag.String("session", "", "Patreon session_id cookie value (or set PATREON_SESSION_ID)")
 	outDir := flag.String("output", ".", "Directory to write EPUB files into")
 	flag.Parse()
 
-	if *token == "" {
-		*token = os.Getenv("PATREON_TOKEN")
+	if *session == "" {
+		*session = os.Getenv("PATREON_SESSION_ID")
 	}
-	if *token == "" {
-		return fmt.Errorf("a Patreon API token is required (--token or PATREON_TOKEN)")
+	if *session == "" {
+		return fmt.Errorf("a Patreon session_id is required (--session or PATREON_SESSION_ID)")
 	}
 
-	client := patreon.NewClient(*token)
+	client := patreon.NewClient(*session)
 
 	// --- Select creators ---
 	fmt.Println("Fetching your memberships...")
