@@ -5,11 +5,11 @@ A CLI tool that converts Patreon posts you follow into EPUB files, ready to impo
 ## Status
 
 - [x] Project design & planning
-- [ ] Patreon API client (identity, memberships, posts)
-- [ ] CLI selection UI (numbered lists)
-- [ ] Image downloading
-- [ ] EPUB generation
-- [ ] End-to-end integration
+- [x] Patreon API client (identity, memberships, posts)
+- [x] CLI selection UI (numbered lists)
+- [x] Image downloading & embedding
+- [x] EPUB generation
+- [x] End-to-end integration (needs real token to validate)
 
 ---
 
